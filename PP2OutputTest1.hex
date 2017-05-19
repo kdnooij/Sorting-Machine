@@ -1,0 +1,127 @@
+@C 3ffff 0007a
+0a8f0       ; 00000 PP2BoardTest : LOAD R5 IO_AREA
+0800a       ; 00001                LOAD R0 TIM001ms
+104ad       ; 00002                SUB R0 [R5+TIMER]
+3c4ad       ; 00003                STOR R0 [R5+TIMER]
+08000       ; 00004                LOAD R0 0
+3c4c6       ; 00005                STOR R0 [R6+DigNr]
+3c4c0       ; 00006                STOR R0 [R6+(Digits+0)]
+3c4c1       ; 00007                STOR R0 [R6+(Digits+1)]
+3c4c2       ; 00008                STOR R0 [R6+(Digits+2)]
+3c4c3       ; 00009                STOR R0 [R6+(Digits+3)]
+3c4c4       ; 0000a                STOR R0 [R6+(Digits+4)]
+3c4c5       ; 0000b                STOR R0 [R6+(Digits+5)]
+08001       ; 0000c                LOAD R0 1
+3c4c7       ; 0000d                STOR R0 [R6+DigSel]
+084ad       ; 0000e ForEver :      LOAD R0 [R5+TIMER]
+015fe       ; 0000f                BPL ForEver
+0800a       ; 00010                LOAD R0 TIM001ms
+3c4ad       ; 00011                STOR R0 [R5+TIMER]
+084a7       ; 00012                LOAD R0 [R5+INPUT]
+08900       ; 00013                LOAD R1 R0
+30001       ; 00014                AND R0 %00001
+30802       ; 00015                AND R1 %00010
+24802       ; 00016                DIV R1 2
+1800f       ; 00017                MULS R0 %000001111
+18880 000f0 ; 00018                MULS R1 %011110000
+34101       ; 0001a                OR R0 R1
+3c4ab       ; 0001b                STOR R0 [R5+OUTPUT]
+084a0       ; 0001c                LOAD R0 [R5+SWITCH]
+3c4aa       ; 0001d                STOR R0 [R5+LEDS]
+084a6       ; 0001e                LOAD R0 [R5+ADCONVS]
+2c080 00100 ; 0001f                DVMD R0 256
+3c5ff       ; 00021                STOR R0 [--R7]
+08000       ; 00022                LOAD R0 0
+18864       ; 00023                MULS R1 100
+0c804       ; 00024                ADD R1 4
+24833       ; 00025                DIV R1 51
+00210       ; 00026                BRS Nat2Dec3
+08df1       ; 00027                LOAD R1 [R7++]
+08003       ; 00028                LOAD R0 3
+18864       ; 00029                MULS R1 100
+0c804       ; 0002a                ADD R1 4
+24833       ; 0002b                DIV R1 51
+0020a       ; 0002c                BRS Nat2Dec3
+084a7       ; 0002d                LOAD R0 [R5+INPUT]
+00406       ; 0002e                BEQ Display
+3c4c0       ; 0002f                STOR R0 [R6+(Digits+0)]
+3c4c1       ; 00030                STOR R0 [R6+(Digits+1)]
+3c4c2       ; 00031                STOR R0 [R6+(Digits+2)]
+3c4c3       ; 00032                STOR R0 [R6+(Digits+3)]
+3c4c4       ; 00033                STOR R0 [R6+(Digits+4)]
+3c4c5       ; 00034                STOR R0 [R6+(Digits+5)]
+00215       ; 00035 Display :      BRS UpdateDisp
+001d7       ; 00036                BRA ForEver
+0a100       ; 00037 Nat2Dec3 :     LOAD R4 R0
+0e000       ; 00038                ADD R4 Digits
+09101       ; 00039                LOAD R2 R1
+2d00a       ; 0003a                DVMD R2 10
+08103       ; 0003b                LOAD R0 R3
+00225       ; 0003c                BRS Hex2Seg7
+3cdc4       ; 0003d                STOR R1 [R6+R4]
+0e001       ; 0003e                ADD R4 1
+2d00a       ; 0003f                DVMD R2 10
+08103       ; 00040                LOAD R0 R3
+00220       ; 00041                BRS Hex2Seg7
+3cdc4       ; 00042                STOR R1 [R6+R4]
+0e001       ; 00043                ADD R4 1
+2d00a       ; 00044                DVMD R2 10
+08103       ; 00045                LOAD R0 R3
+0021b       ; 00046                BRS Hex2Seg7
+34880 3ff80 ; 00047                OR R1 %10000000
+3cdc4       ; 00049                STOR R1 [R6+R4]
+045f1       ; 0004a                RTS
+084c6       ; 0004b UpdateDisp :   LOAD R0 [R6+DigNr]
+14005       ; 0004c                CMP R0 5
+0040b       ; 0004d                BEQ UpdateDig5
+08900       ; 0004e UpdateDg04 :   LOAD R1 R0
+0c800       ; 0004f                ADD R1 Digits
+08dc1       ; 00050                LOAD R1 [R6+R1]
+3cca8       ; 00051                STOR R1 [R5+DSPSEG]
+0c001       ; 00052                ADD R0 1
+3c4c6       ; 00053                STOR R0 [R6+DigNr]
+084c7       ; 00054                LOAD R0 [R6+DigSel]
+3c4a9       ; 00055                STOR R0 [R5+DSPDIG]
+0c100       ; 00056                ADD R0 R0
+3c4c7       ; 00057                STOR R0 [R6+DigSel]
+045f1       ; 00058                RTS
+08cc5       ; 00059 UpdateDig5 :   LOAD R1 [R6+(Digits+5)]
+3cca8       ; 0005a                STOR R1 [R5+DSPSEG]
+08000       ; 0005b                LOAD R0 0
+3c4c6       ; 0005c                STOR R0 [R6+DigNr]
+084c7       ; 0005d                LOAD R0 [R6+DigSel]
+3c4a9       ; 0005e                STOR R0 [R5+DSPDIG]
+08001       ; 0005f                LOAD R0 1
+3c4c7       ; 00060                STOR R0 [R6+DigSel]
+045f1       ; 00061 UpdateEnd :    RTS
+00211       ; 00062 Hex2Seg7 :     BRS Hex2Seg7_bgn
+0007e       ; 00063 Hex2Seg7_tbl : CONS %01111110
+00030       ; 00064                CONS %00110000
+0006d       ; 00065                CONS %01101101
+00079       ; 00066                CONS %01111001
+00033       ; 00067                CONS %00110011
+0005b       ; 00068                CONS %01011011
+0005f       ; 00069                CONS %01011111
+00070       ; 0006a                CONS %01110000
+0007f       ; 0006b                CONS %01111111
+0007b       ; 0006c                CONS %01111011
+00077       ; 0006d                CONS %01110111
+0001f       ; 0006e                CONS %00011111
+0004e       ; 0006f                CONS %01001110
+0003d       ; 00070                CONS %00111101
+0004f       ; 00071                CONS %01001111
+00047       ; 00072                CONS %01000111
+00000       ; 00073                CONS %00000000
+14010       ; 00074 Hex2Seg7_bgn : CMP R0 16
+00801       ; 00075                BCS Hex2Seg7_fi
+08010       ; 00076                LOAD R0 16
+08df1       ; 00077 Hex2Seg7_fi :  LOAD R1 [R7++]
+08d20       ; 00078                LOAD R1 [R1+R0]
+045f1       ; 00079                RTS
+
+@D 3ffff 00008 ; 
+00000 00000 00000 00000 00000 00000 00000 00000 ;                 
+
+@S 3ffff 000f0
+
+.

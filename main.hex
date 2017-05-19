@@ -1,0 +1,105 @@
+@C 3ffff 00064
+00015       ; 00000 begin :           BRA main
+00210       ; 00001 Hex7Seg :         BRS Hex7Seg_bgn
+0007e       ; 00002 Hex7Seg_tbl :     CONS %01111110
+00030       ; 00003                   CONS %00110000
+0006d       ; 00004                   CONS %01101101
+00079       ; 00005                   CONS %01111001
+00033       ; 00006                   CONS %00110011
+0005b       ; 00007                   CONS %01011011
+0005f       ; 00008                   CONS %01011111
+00070       ; 00009                   CONS %01110000
+0007f       ; 0000a                   CONS %01111111
+0007b       ; 0000b                   CONS %01111011
+00077       ; 0000c                   CONS %01110111
+0001f       ; 0000d                   CONS %00011111
+0004e       ; 0000e                   CONS %01001110
+0003d       ; 0000f                   CONS %00111101
+0004f       ; 00010                   CONS %01001111
+00047       ; 00011                   CONS %01000111
+3000f       ; 00012 Hex7Seg_bgn :     AND R0 %01111
+08df1       ; 00013                   LOAD R1 [R7++]
+08d20       ; 00014                   LOAD R1 [R1+R0]
+045f1       ; 00015                   RTS
+0a8f0       ; 00016 main :            LOAD R5 IOAREA
+08000       ; 00017                   LOAD R0 NORMAL
+3c4c3       ; 00018                   STOR R0 [R6+State]
+00246       ; 00019 loop :            BRS check_buttons
+0a101       ; 0001a                   LOAD R4 R1
+16001       ; 0001b                   CMP R4 1
+00445       ; 0001c                   BEQ power_off
+00231       ; 0001d                   BRS check_input
+0a101       ; 0001e                   LOAD R4 R1
+16000       ; 0001f                   CMP R4 EMPTY
+00413       ; 00020                   BEQ exec_state
+16002       ; 00021                   CMP R4 WHITE
+00403       ; 00022                   BEQ w_detected
+16001       ; 00023                   CMP R4 BLACK
+00408       ; 00024                   BEQ b_detected
+00028       ; 00025                   BRA detection_err
+08001       ; 00026 w_detected :      LOAD R0 W_SORT
+3c4c3       ; 00027                   STOR R0 [R6+State]
+084ad       ; 00028                   LOAD R0 [R5+TIMER]
+10080 04e20 ; 00029                   SUB R0 SORT_TIME
+3c4c2       ; 0002b                   STOR R0 [R6+SortDelay]
+00007       ; 0002c                   BRA exec_state
+08002       ; 0002d b_detected :      LOAD R0 B_SORT
+3c4c3       ; 0002e                   STOR R0 [R6+State]
+084ad       ; 0002f                   LOAD R0 [R5+TIMER]
+10080 04e20 ; 00030                   SUB R0 SORT_TIME
+3c4c2       ; 00032                   STOR R0 [R6+SortDelay]
+00000       ; 00033                   BRA exec_state
+084c3       ; 00034 exec_state :      LOAD R0 [R6+State]
+14000       ; 00035                   CMP R0 NORMAL
+00413       ; 00036                   BEQ e_sort
+14001       ; 00037                   CMP R0 W_SORT
+00402       ; 00038                   BEQ w_sort
+14002       ; 00039                   CMP R0 B_SORT
+00406       ; 0003a                   BEQ b_sort
+084c2       ; 0003b w_sort :          LOAD R0 [R6+SortDelay]
+144ad       ; 0003c                   CMP R0 [R5+TIMER]
+00e09       ; 0003d                   BHI normal_state
+08001       ; 0003e                   LOAD R0 %0001
+3c4ab       ; 0003f                   STOR R0 [R5+OUTPUT]
+0000c       ; 00040                   BRA exec_end
+084c2       ; 00041 b_sort :          LOAD R0 [R6+SortDelay]
+144ad       ; 00042                   CMP R0 [R5+TIMER]
+00e03       ; 00043                   BHI normal_state
+08002       ; 00044                   LOAD R0 %0010
+3c4ab       ; 00045                   STOR R0 [R5+OUTPUT]
+00006       ; 00046                   BRA exec_end
+08000       ; 00047 normal_state :    LOAD R0 NORMAL
+3c4c3       ; 00048                   STOR R0 [R6+State]
+00000       ; 00049                   BRA e_sort
+08004       ; 0004a e_sort :          LOAD R0 %0100
+3c4ab       ; 0004b                   STOR R0 [R5+OUTPUT]
+00000       ; 0004c                   BRA exec_end
+001cb       ; 0004d exec_end :        BRA loop
+00013       ; 0004e detection_err :   BRA power_off
+08ca6       ; 0004f check_input :     LOAD R1 [R5+ADCONVS]
+24880 000ff ; 00050                   DIV R1 255
+14819       ; 00052                   CMP R1 W_VAL
+00e07       ; 00053                   BHI w_input
+084a7       ; 00054                   LOAD R0 [R5+INPUT]
+14002       ; 00055                   CMP R0 2
+00602       ; 00056                   BNE b_input
+08800       ; 00057 e_input :         LOAD R1 EMPTY
+00006       ; 00058                   BRA check_input_end
+08801       ; 00059 b_input :         LOAD R1 BLACK
+00004       ; 0005a                   BRA check_input_end
+084a7       ; 0005b w_input :         LOAD R0 [R5+INPUT]
+14002       ; 0005c                   CMP R0 2
+005f9       ; 0005d                   BEQ e_input
+08802       ; 0005e                   LOAD R1 WHITE
+045f1       ; 0005f check_input_end : RTS
+08ca7       ; 00060 check_buttons :   LOAD R1 [R5+INPUT]
+045f1       ; 00061                   RTS
+08800       ; 00062 power_off :       LOAD R1 0
+3ccab       ; 00063                   STOR R1 [R5+OUTPUT]
+
+@D 3ffff 00004 ; 
+00000 00000 00000 00000                         ;         
+
+@S 3ffff 000f0
+
+.
