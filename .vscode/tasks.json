@@ -11,7 +11,7 @@
     "tasks": [
         {
             "taskName": "Assemble",
-            "args": ["${fileBasename}", "${fileBasenameNoExtension}.hex"],
+            "args": ["${fileBasename}", "C:/Users/Koen/Documents/${fileBasenameNoExtension}.hex"],
             "isBuildCommand": true
         }
     ]
